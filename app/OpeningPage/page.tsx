@@ -20,10 +20,11 @@ export default function OpeningPage() {
           textAlign="center"
           tag="h1"
         />
-        
+
         <p className="text-xl md:text-2xl text-muted-foreground mt-4 mb-8">
-          Discover insightful articles, tutorials, and stories from the community. 
-          Enjoy lightning-fast server-side rendering combined with beautiful animations.
+          Discover insightful articles, tutorials, and stories from the
+          community. Enjoy lightning-fast server-side rendering combined with
+          beautiful animations.
         </p>
 
         <a
