@@ -3,6 +3,7 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useInView } from "react-intersection-observer";
 import { useEffect } from "react";
+import { Blog } from "../api/db";
 import Image from "next/image";
 import {
   Card,
@@ -13,7 +14,7 @@ import {
 } from "@/components/ui/card";
 import { BlogCardActions } from "./BlogCardActions";
 
-type Blog = {
+type BlogType = {
   id: string;
   title: string;
   content: string;
@@ -26,10 +27,9 @@ type Blog = {
 
 type BlogListProps = {
   search?: string;
-  initialData: Blog[];
 };
 
-export default function BlogList({ search, initialData }: BlogListProps) {
+export default function BlogList({ search }: BlogListProps) {
   const { ref, inView } = useInView();
 
   const {
@@ -79,7 +79,7 @@ export default function BlogList({ search, initialData }: BlogListProps) {
   return (
     <>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {blogs.map((blog: Blog) => (
+        {blogs.map((blog: BlogType) => (
           <Card
             key={blog.id}
             className="flex flex-col hover:shadow-lg transition-shadow duration-300"
@@ -105,7 +105,7 @@ export default function BlogList({ search, initialData }: BlogListProps) {
               </p>
             </CardContent>
             <CardFooter className="border-t pt-4">
-              <BlogCardActions blog={blog as any} />
+              <BlogCardActions blog={blog as Blog} />
             </CardFooter>
           </Card>
         ))}

@@ -1,5 +1,4 @@
 import { Suspense } from "react";
-import { Blog } from "../api/db";
 import {
   Card,
   CardHeader,
@@ -14,14 +13,25 @@ import prisma from "@/lib/db";
 import SearchInput from "./SearchInput";
 import { getBlogs } from "@/lib/blogs";
 import BlogList from "./BlogList";
-
+type Blog = {
+  id: string;
+  title: string;
+  content: string;
+  image: string;
+  authorId: string;
+  author: {
+    name: string | null;
+  } | null;
+};
 export default async function BlogPage(props: {
-  searchParams?: Promise<{ [key: string]: string | string[] | undefined }> | { [key: string]: string | string[] | undefined };
+  searchParams?:
+    | Promise<{ [key: string]: string | string[] | undefined }>
+    | { [key: string]: string | string[] | undefined };
 }) {
   const params = (await props.searchParams) || {};
-  const limit = 12
+  const limit = 12;
   const search = typeof params.search === "string" ? params.search : undefined;
-  const blogs = await getBlogs(search,limit);
+  const blogs = await getBlogs(search, limit);
 
   return (
     <div className="container mx-auto py-10 px-4 max-w-5xl">
@@ -40,7 +50,7 @@ export default async function BlogPage(props: {
         <CreateBlogModal />
       </div>
 
-      <BlogList search={search} initialData={blogs as any} />
+      <BlogList search={search} />
     </div>
   );
 }
