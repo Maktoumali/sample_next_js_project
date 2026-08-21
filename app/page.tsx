@@ -1,15 +1,21 @@
 // app/page.tsx
+import { getServerSession } from "next-auth/next";
+import { options } from "@/app/api/auth/[...nextauth]/options";
 import BlogPage from "./blog/page";
 import OpeningPage from "./OpeningPage/page";
 
 export default async function Home(props: {
   searchParams?: Promise<{ [key: string]: string | string[] | undefined }> | { [key: string]: string | string[] | undefined };
 }) {
-  // This renders the entire blog page on the '/' route
+  const session = await getServerSession(options);
+
   return (
     <div>
-      <OpeningPage/>
-      <BlogPage searchParams={props.searchParams} />
+      {session ? (
+        <BlogPage searchParams={props.searchParams} />
+      ) : (
+        <OpeningPage />
+      )}
     </div>
   );
 }

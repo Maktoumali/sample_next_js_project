@@ -1,91 +1,125 @@
 "use client";
 
-import { useState } from "react";
-import { signIn } from "next-auth/react";
+import { useState, useEffect } from "react";
+import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
+import { Mail, Lock, ArrowRight, Box } from "lucide-react";
 import Link from "next/link";
 
 export default function LoginPage() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
+  const { status } = useSession();
+
+  useEffect(() => {
+    if (status === "authenticated") {
+      router.replace("/blog");
+    }
+  }, [status, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setError("");
 
-    const result = await signIn("credentials", {
-      email,
-      password,
-      redirect: false,
-    });
+    try {
+      const res = await signIn("credentials", {
+        redirect: false,
+        email,
+        password,
+      });
 
-    if (result?.error) {
-      toast.error("Invalid email or password");
+      if (res?.error) {
+        setError("Invalid email or password");
+      } else {
+        router.replace("/blog");
+        router.refresh();
+      }
+    } catch (error) {
+      setError("An unexpected error occurred");
+    } finally {
       setIsLoading(false);
-    } else {
-      toast.success("Successfully logged in");
-      router.push("/");
-      router.refresh();
     }
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen p-4">
-      <Card className="w-full max-w-md shadow-xl border-t-4 border-t-primary">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold">Welcome back</CardTitle>
-          <CardDescription>
-            Enter your email and password to login to your account.
-          </CardDescription>
-        </CardHeader>
-        <form onSubmit={handleSubmit}>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium" htmlFor="email">
-                Email
-              </label>
+    <div className="min-h-screen bg-[#0a0a0a] flex flex-col items-center justify-center p-6 text-white font-sans selection:bg-[#333] selection:text-white">
+      <div className="w-full max-w-[360px] flex flex-col items-center">
+        {/* Logo Section */}
+        <div className="w-12 h-12 bg-[#111] border border-[#222] rounded-sm flex items-center justify-center mb-6 shadow-sm">
+          <Box className="w-6 h-6 text-[#888]" strokeWidth={1.5} />
+        </div>
+        
+        <h1 className="text-xl font-bold tracking-tight mb-2">TECH_MONO</h1>
+        <p className="text-[#888] text-sm mb-10">Sign in to your account</p>
+
+        {/* Form Section */}
+        <form onSubmit={handleSubmit} className="w-full flex flex-col gap-5">
+          {error && (
+            <div className="bg-red-950/50 border border-red-900/50 text-red-500 text-xs p-3 rounded-sm text-center">
+              {error}
+            </div>
+          )}
+
+          <div className="flex flex-col gap-2">
+            <label className="font-mono text-[10px] text-[#888] uppercase tracking-widest pl-1">
+              Email Address
+            </label>
+            <div className="relative">
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#555]" />
               <input
-                id="email"
                 type="email"
-                required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@example.com"
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                placeholder="name@example.com"
+                required
+                className="w-full bg-[#111] border border-[#222] text-[#eee] text-sm rounded-sm pl-10 pr-4 py-3 focus:outline-none focus:border-[#444] transition-colors placeholder:text-[#444]"
               />
             </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium" htmlFor="password">
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <div className="flex justify-between items-center pl-1 pr-1">
+              <label className="font-mono text-[10px] text-[#888] uppercase tracking-widest">
                 Password
               </label>
-              <input
-                id="password"
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 mb-10"
-              />
-            </div>
-          </CardContent>
-          <CardFooter className="flex flex-col gap-4">
-            <Button className="w-full" type="submit" disabled={isLoading}>
-              {isLoading ? "Signing in..." : "Sign In"}
-            </Button>
-            <div className="text-sm text-center text-muted-foreground mb-4">
-              Don&apos;t have an account?{" "}
-              <Link href="/register" className="text-primary hover:underline">
-                Sign up
+              <Link href="#" className="font-mono text-[10px] text-[#888] hover:text-[#ccc] transition-colors">
+                Forgot?
               </Link>
             </div>
-          </CardFooter>
+            <div className="relative">
+              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#555]" />
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                required
+                className="w-full bg-[#111] border border-[#222] text-[#eee] text-sm rounded-sm pl-10 pr-4 py-3 focus:outline-none focus:border-[#444] transition-colors placeholder:text-[#444]"
+              />
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="w-full bg-[#ededed] text-black hover:bg-white transition-colors py-3 rounded-sm flex items-center justify-center gap-2 mt-2 disabled:opacity-70 disabled:cursor-not-allowed"
+          >
+            <span className="font-mono text-xs font-bold tracking-widest uppercase">
+              {isLoading ? "Logging in..." : "Log In"}
+            </span>
+            {!isLoading && <ArrowRight className="w-4 h-4" />}
+          </button>
         </form>
-      </Card>
+
+        {/* Footer */}
+        <p className="mt-12 text-[10px] font-mono tracking-widest text-[#555]">
+          Protected by TECH_MONO Core Protocol
+        </p>
+      </div>
     </div>
   );
 }

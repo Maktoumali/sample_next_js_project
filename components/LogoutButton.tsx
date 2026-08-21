@@ -11,10 +11,19 @@ export default function LogoutButton() {
     return null;
   }
 
+  const handleLogout = async () => {
+    // Clear any local storage that might be persisting
+    if (typeof window !== "undefined") {
+      localStorage.clear();
+      sessionStorage.clear();
+    }
+    await signOut({ callbackUrl: "/login" });
+  };
+
   return (
     <Button 
       variant="outline"
-      onClick={() => signOut({ callbackUrl: "/login" })}
+      onClick={handleLogout}
       className="absolute top-4 right-4 z-50 flex items-center gap-2"
     >
       <LogOut className="h-4 w-4" />
