@@ -13,6 +13,7 @@ import prisma from "@/lib/db";
 import SearchInput from "./SearchInput";
 import { getBlogs } from "@/lib/blogs";
 import BlogList from "./BlogList";
+import HeroSection from "./HeroSection";
 type Blog = {
   id: string;
   title: string;
@@ -35,6 +36,9 @@ export default async function BlogPage(props: {
 
   return (
     <div className="container mx-auto py-10 px-4 max-w-5xl">
+      <div className="w-full h-60">
+        <HeroSection />
+      </div>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
         <div>
           <h1 className="text-4xl font-extrabold tracking-tight">
