@@ -1,18 +1,13 @@
 import { PrismaClient } from "./generated/prisma/client";
-import { PrismaMariaDb } from "@prisma/adapter-mariadb";
+import { Pool } from "pg";
+import { PrismaPg } from "@prisma/adapter-pg";
 
 const prismaClientSingleton = () => {
-  const adapter = new PrismaMariaDb({
-    host: process.env.DB_HOST || "localhost",
-    port: parseInt(process.env.DB_PORT || "3306", 10),
-    user: process.env.DB_USER || "root",
-    password: process.env.DB_PASSWORD || "1234",
-    database: process.env.DB_NAME || "my_project_db",
-    connectionLimit: 10,
-    allowPublicKeyRetrieval: true,
-  });
+  const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+  const adapter = new PrismaPg(pool);
   return new PrismaClient({ adapter });
 };
+
 
 declare const globalThis: {
   prismaGlobal: ReturnType<typeof prismaClientSingleton>;
