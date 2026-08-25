@@ -113,6 +113,15 @@ export default function LoginPage() {
             </span>
             {!isLoading && <ArrowRight className="w-4 h-4" />}
           </button>
+
+          <div className="flex justify-center items-center mt-2">
+            <span className="text-[#888] text-[10px] font-mono tracking-widest uppercase">
+              Don't have an account?{" "}
+            </span>
+            <Link href="/register" className="text-[#eee] text-[10px] font-mono tracking-widest uppercase ml-2 hover:text-white underline decoration-[#555] underline-offset-4 transition-colors">
+              Sign up
+            </Link>
+          </div>
         </form>
 
         {/* Footer */}

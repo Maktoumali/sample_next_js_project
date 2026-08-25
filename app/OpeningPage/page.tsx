@@ -20,12 +20,12 @@ export default async function OpeningPage() {
           </div>
           <span className="font-mono text-sm tracking-wider font-semibold">TECH_MONO</span>
         </div>
-        {/* <Link 
+        <Link 
           href="/login" 
           className="border border-[#333] hover:border-[#666] transition-colors text-xs font-mono px-4 py-2 rounded-sm tracking-widest"
         >
           LOG IN
-        </Link> */}
+        </Link>
       </header>
 
       <main className="max-w-7xl mx-auto px-6 pt-16">
