@@ -2,8 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { blogs, Blog } from '../db';
 import { getBlogs } from '@/lib/blogs';
 import prisma from "@/lib/db";
-import { writeFile } from 'fs/promises';
-import { join } from 'path';
+import { createClient } from '@supabase/supabase-js';
 import { getServerSession } from "next-auth/next";
 import { options } from "@/app/api/auth/[...nextauth]/options";
 
@@ -58,10 +57,32 @@ export async function POST(request: Request) {
       const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
       const filename = `${uniqueSuffix}-${file.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
       
-      const path = join(process.cwd(), 'public/uploads', filename);
-      await writeFile(path, buffer);
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
       
-      imagePath = `/uploads/${filename}`;
+      if (!supabaseUrl || !supabaseKey) {
+        return NextResponse.json({ error: 'Supabase credentials are not configured' }, { status: 500 });
+      }
+      
+      const supabase = createClient(supabaseUrl, supabaseKey);
+      
+      const { data, error } = await supabase.storage
+        .from('blog-images')
+        .upload(filename, buffer, {
+          contentType: file.type,
+          upsert: false,
+        });
+        
+      if (error) {
+        console.error("Supabase upload error:", error);
+        return NextResponse.json({ error: 'Failed to upload image' }, { status: 500 });
+      }
+      
+      const { data: { publicUrl } } = supabase.storage
+        .from('blog-images')
+        .getPublicUrl(filename);
+        
+      imagePath = publicUrl;
     }
 
     const newBlog = await prisma.blog.create({
