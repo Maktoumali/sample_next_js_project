@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import LightRays from "@/components/LightRays";
@@ -50,7 +51,9 @@ export default function RootLayout({
           />
         </div>
         <Providers>
-          <LogoutButton />
+          <Suspense fallback={null}>
+            <LogoutButton />
+          </Suspense>
           {children}
         </Providers>
         <Toaster />
