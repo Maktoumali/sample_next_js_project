@@ -7,6 +7,7 @@ import { Blog } from "../api/db";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
+import { ImageCropperModal } from "@/components/ImageCropperModal";
 
 export function BlogCardActions({ blog }: { blog: Blog }) {
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -15,6 +16,7 @@ export function BlogCardActions({ blog }: { blog: Blog }) {
   const [title, setTitle] = useState(blog.title);
   const [content, setContent] = useState(blog.content);
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [cropImageSrc, setCropImageSrc] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const { status } = useSession();
@@ -97,6 +99,19 @@ export function BlogCardActions({ blog }: { blog: Blog }) {
     setIsDeleteOpen(true);
   };
 
+  const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0];
+      const reader = new FileReader();
+      reader.addEventListener("load", () =>
+        setCropImageSrc(reader.result?.toString() || null)
+      );
+      reader.readAsDataURL(file);
+      // Reset input value to allow selecting the same file again
+      e.target.value = "";
+    }
+  };
+
   return (
     <>
       <div className="flex gap-2 justify-end w-full">
@@ -136,9 +151,14 @@ export function BlogCardActions({ blog }: { blog: Blog }) {
                 <input
                   type="file"
                   accept="image/*"
-                  onChange={(e) => setImageFile(e.target.files?.[0] || null)}
+                  onChange={onFileChange}
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                 />
+                {imageFile && (
+                  <p className="text-sm text-green-600 mt-2">
+                    ✓ New image cropped and ready ({imageFile.name})
+                  </p>
+                )}
               </div>
               <div className="flex justify-end gap-3 mt-4">
                 <Button type="button" variant="outline" onClick={() => setIsEditOpen(false)} disabled={isLoading}>
@@ -171,6 +191,17 @@ export function BlogCardActions({ blog }: { blog: Blog }) {
             </div>
           </div>
         </div>
+      )}
+
+      {cropImageSrc && (
+        <ImageCropperModal
+          imageSrc={cropImageSrc}
+          onCropComplete={(croppedFile) => {
+            setImageFile(croppedFile);
+            setCropImageSrc(null);
+          }}
+          onCancel={() => setCropImageSrc(null)}
+        />
       )}
     </>
   );
