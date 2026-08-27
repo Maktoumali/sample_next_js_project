@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Blog } from "../api/db";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 
 export function BlogCardActions({ blog }: { blog: Blog }) {
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -17,6 +18,7 @@ export function BlogCardActions({ blog }: { blog: Blog }) {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const { status } = useSession();
+  const queryClient = useQueryClient();
 
   const handleEditSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,6 +37,7 @@ export function BlogCardActions({ blog }: { blog: Blog }) {
       });
       if (res.ok) {
         setIsEditOpen(false);
+        queryClient.invalidateQueries({ queryKey: ["blogs"] });
         router.refresh();
         toast.success("Blog updated successfully!");
       } else if (res.status === 401) {
@@ -59,6 +62,7 @@ export function BlogCardActions({ blog }: { blog: Blog }) {
       });
       if (res.ok) {
         setIsDeleteOpen(false);
+        queryClient.invalidateQueries({ queryKey: ["blogs"] });
         router.refresh();
         toast.success("Blog deleted successfully!");
       } else if (res.status === 401) {

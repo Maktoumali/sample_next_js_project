@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 
 export function CreateBlogModal() {
   const [isOpen, setIsOpen] = useState(false);
@@ -14,6 +15,7 @@ export function CreateBlogModal() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const { data: session, status } = useSession();
+  const queryClient = useQueryClient();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,6 +39,7 @@ export function CreateBlogModal() {
         setTitle("");
         setContent("");
         setImageFile(null);
+        queryClient.invalidateQueries({ queryKey: ["blogs"] });
         router.refresh();
         toast.success("Blog created successfully!");
       } else if (res.status === 401) {
