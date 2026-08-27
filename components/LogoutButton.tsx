@@ -1,13 +1,15 @@
 "use client";
 
 import { signOut, useSession } from "next-auth/react";
+import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
 
 export default function LogoutButton() {
   const { status } = useSession();
+  const pathname = usePathname();
 
-  if (status !== "authenticated") {
+  if (status !== "authenticated" || pathname === "/login") {
     return null;
   }
 
